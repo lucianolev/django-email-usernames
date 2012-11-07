@@ -21,12 +21,22 @@ def query_fix_usertable(sender, app, created_models, verbosity, interactive, **k
     answer = raw_input(message)
     while not answer.lower() in ('y', 'n', 'yes', 'no'):
         raw_input("You need to either decide yes ('y') or no ('n'). Default is no. (y/N): ")
-        
+
+    from django.conf import settings
     from django.db import connection
+
+    engine = settings.DATABASES['default']['ENGINE']
+
     cursor = connection.cursor()
-    cursor.execute('ALTER TABLE "auth_user" RENAME TO "auth_user_temp"')
-    cursor.execute('CREATE TABLE "auth_user" ("id" integer NOT NULL PRIMARY KEY,"username" varchar(75) NOT NULL UNIQUE,"first_name" varchar(30) NOT NULL,"last_name" varchar(30) NOT NULL,"email" varchar(75) NOT NULL,"password" varchar(128) NOT NULL,"is_staff" bool NOT NULL,"is_active" bool NOT NULL,"is_superuser" bool NOT NULL,"last_login" datetime NOT NULL,"date_joined" datetime NOT NULL)')
-    cursor.execute('INSERT INTO "auth_user" SELECT * FROM "auth_user_temp"')
-    cursor.execute('DROP TABLE "auth_user_temp"')
+
+    if 'postgis' in engine or 'postgresql_psycopg2' in engine:
+        cursor.execute('ALTER TABLE auth_user ALTER username TYPE character varying(75)')
+    else if 'sqlite3' in engine:
+        cursor.execute('ALTER TABLE "auth_user" RENAME TO "auth_user_temp"')
+        cursor.execute('CREATE TABLE "auth_user" ("id" integer NOT NULL PRIMARY KEY,"username" varchar(75) NOT NULL UNIQUE,"first_name" varchar(30) NOT NULL,"last_name" varchar(30) NOT NULL,"email" varchar(75) NOT NULL,"password" varchar(128) NOT NULL,"is_staff" bool NOT NULL,"is_active" bool NOT NULL,"is_superuser" bool NOT NULL,"last_login" datetime NOT NULL,"date_joined" datetime NOT NULL)')
+        cursor.execute('INSERT INTO "auth_user" SELECT * FROM "auth_user_temp"')
+        cursor.execute('DROP TABLE "auth_user_temp"')
+    else:
+        cursor.execute('ALTER TABLE auth_user MODIFY COLUMN username varchar(75) NOT NULL')
     
 post_syncdb.connect(query_fix_usertable)
