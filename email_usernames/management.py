@@ -1,16 +1,16 @@
 from django.db.models.signals import post_syncdb
 
 message = """
-    'django-email-accounts' has detected that you just installed Django's authentication system (django.auth). 
+    'django-email-usernames' has detected that you just installed Django's authentication system (django.auth). 
          
-    For your convenience, django-email-accounts can alter the user table's username field to allow 75 characters instead
+    For your convenience, django-email-usernames can alter the user table's username field to allow 75 characters instead
     of the default 35 chars. Unless you do this, emails that are longer than 30 characters will be cut off, and this 
     app will probably not work!
     
     NOTE: this will only work if the SQL user account you have created for django has the privileges
     to run ALTER statements.
     
-    Do you want django-email-accounts to try to alter the auth_user.username column to allow 75 characters? 
+    Do you want django-email-usernames to try to alter the auth_user.username column to allow 75 characters? 
     (y/N): """
 
 def query_fix_usertable(sender, app, created_models, verbosity, interactive, **kwargs):
