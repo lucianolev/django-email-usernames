@@ -9,8 +9,8 @@ view, and also a helper view that together with the popular django-registration
 app makes it simple for you to let users create new accounts with email as
 username.
 
-Installation
----------------
+Installation & Usage
+--------------------
 
 1. First add it as any other django app, to your installed apps:
 
@@ -18,6 +18,7 @@ Installation
     INSTALLED_APPS = (
         ...
         'django.contrib.auth',
+        'registration', #Only if using django-registration
         'email_usernames',
     )
     ```
@@ -64,7 +65,13 @@ Installation
     this to work, the SQL user needs the ALTER TABLE privileges, otherwise you
     need to do the change manually (see way #1 above).
 
-Example Usage
-----------------
+4. To integrate the views, if you're using django-registration you'll need to setup the urls 
+   for login and registration, adding the following to urls.py (the order is important!):
 
-    Coming soon!
+    ```python
+    (r'^accounts/', include('email_usernames.backends.email.urls')),
+    (r'^accounts/', include('registration.backends.default.urls')),
+    ```
+
+5. Finally you only need to create your custom templates for login and registration like you would 
+   normally do when using django.contrib.auth & django-registration and you're done!
